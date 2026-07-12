@@ -29,8 +29,8 @@ jobs:
 
       - name: Initialize React Native Project Wrapper (Android 14 / API 34+)
         run: |
-          # Inicializar proyecto con React Native 0.74.1 (targets Android 14 nativamente)
-          npx react-native@0.74.1 init BuildApp --directory build-app --skip-install --version 0.74.1
+          # Inicializar proyecto con React Native 0.73.6 (targets Android 14 nativamente y es más estable con svg)
+          npx react-native@0.73.6 init BuildApp --directory build-app --skip-install --version 0.73.6
           cp -r build-app/android .
           cp build-app/metro.config.js .
           cp build-app/app.json .
@@ -50,10 +50,6 @@ jobs:
             // 2. Modificar gradle de app
             if (fs.existsSync('android/app/build.gradle')) {
               let appGradle = fs.readFileSync('android/app/build.gradle', 'utf8');
-              appGradle = appGradle.replace(/compileSdkVersion\s+\d+/g, 'compileSdkVersion 34');
-              appGradle = appGradle.replace(/targetSdkVersion\s+\d+/g, 'targetSdkVersion 34');
-              
-              // Habilitar Code Shrinking (Proguard/R8) y Resource Shrinking para APK ligera
               appGradle = appGradle.replace(/minifyEnabled\s+false/g, 'minifyEnabled true');
               if (!appGradle.includes('shrinkResources')) {
                 appGradle = appGradle.replace(/minifyEnabled\s+true/g, 'minifyEnabled true\n            shrinkResources true');
@@ -65,8 +61,8 @@ jobs:
             
             // 3. Fusionar dependencias de package.json
             const pkg = JSON.parse(fs.readFileSync('build-app/package.json', 'utf8'));
-            pkg.dependencies['react-native-svg'] = '^15.2.0';
-            pkg.dependencies['lucide-react-native'] = '^0.370.0';
+            pkg.dependencies['react-native-svg'] = '^14.1.0';
+            pkg.dependencies['lucide-react-native'] = '^0.350.0';
             fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
           "
           rm -rf build-app
