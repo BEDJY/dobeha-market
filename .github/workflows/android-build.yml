@@ -71,6 +71,15 @@ jobs:
           "
           rm -rf build-app
           rm -f App.tsx
+          
+          # 4. Asegurar que exista index.js en la raíz del proyecto para bundling
+          if [ ! -f index.js ]; then
+            echo "import { AppRegistry } from 'react-native';" > index.js
+            echo "import App from './App';" >> index.js
+            echo "import { name as appName } from './app.json';" >> index.js
+            echo "AppRegistry.registerComponent(appName, () => App);" >> index.js
+            echo "Creado archivo index.js para bundling de React Native"
+          fi
 
       - name: Install Project Dependencies
         run: |
