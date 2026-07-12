@@ -13,11 +13,10 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js (with caching)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
 
       - name: Setup JDK 17 (with caching)
         uses: actions/setup-java@v4
