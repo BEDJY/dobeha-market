@@ -44,27 +44,23 @@ jobs:
           // 1. Modificar gradle de nivel raíz para asegurar target 34
           if (fs.existsSync('android/build.gradle')) {
             let rootGradle = fs.readFileSync('android/build.gradle', 'utf8');
-            rootGradle = rootGradle.replace(/compileSdkVersions*=s*d+/g, 'compileSdkVersion = 34');
-            rootGradle = rootGradle.replace(/targetSdkVersions*=s*d+/g, 'targetSdkVersion = 34');
+            rootGradle = rootGradle.replace(/compileSdkVersion\s*=\s*\d+/g, 'compileSdkVersion = 34');
+            rootGradle = rootGradle.replace(/targetSdkVersion\s*=\s*\d+/g, 'targetSdkVersion = 34');
             fs.writeFileSync('android/build.gradle', rootGradle);
           }
           
           // 2. Modificar gradle de app (Code Shrinking + Debug Signing for Release builds)
           if (fs.existsSync('android/app/build.gradle')) {
             let appGradle = fs.readFileSync('android/app/build.gradle', 'utf8');
-            appGradle = appGradle.replace(/minifyEnableds+false/g, 'minifyEnabled true');
+            appGradle = appGradle.replace(/minifyEnabled\s+false/g, 'minifyEnabled true');
             if (!appGradle.includes('shrinkResources')) {
-              appGradle = appGradle.replace(/minifyEnableds+true/g, 'minifyEnabled true
-            shrinkResources true');
+              appGradle = appGradle.replace(/minifyEnabled\s+true/g, 'minifyEnabled true\n            shrinkResources true');
             }
-            appGradle = appGradle.replace(/enableProguardInReleaseBuildss*=s*false/g, 'enableProguardInReleaseBuilds = true');
+            appGradle = appGradle.replace(/enableProguardInReleaseBuilds\s*=\s*false/g, 'enableProguardInReleaseBuilds = true');
             
             // Forzar firma debug en compilaciones de tipo Release para que sean instalables sin firmar
-            if (appGradle.includes('signingConfig signingConfigs.debug') && !appGradle.includes('release {
-            signingConfig signingConfigs.debug')) {
-              appGradle = appGradle.replace(/releases*{s*/g, 'release {
-            signingConfig signingConfigs.debug
-            ');
+            if (appGradle.includes('signingConfig signingConfigs.debug') && !appGradle.includes('release {\n            signingConfig signingConfigs.debug')) {
+              appGradle = appGradle.replace(/release\s*\{\s*/g, 'release {\n            signingConfig signingConfigs.debug\n            ');
             }
             
             fs.writeFileSync('android/app/build.gradle', appGradle);
@@ -91,9 +87,9 @@ jobs:
               const stat = fs.statSync(fullPath);
               if (stat.isDirectory()) {
                 scanDir(fullPath);
-              } else if (stat.isFile() && /.(jsx?|tsx?)$/.test(item)) {
+              } else if (stat.isFile() && /\.(jsx?|tsx?)$/.test(item)) {
                 const content = fs.readFileSync(fullPath, 'utf8');
-                const importRegex = /(?:imports+(?:[ws{},*]+)s+froms+['"]([^'"]+)['"])|(?:imports+['"]([^'"]+)['"])|(?:requires*(s*['"]([^'"]+)['"]s*))/g;
+                const importRegex = /(?:import\s+(?:[\w\s{},*]+)\s+from\s+['"]([^'"]+)['"])|(?:import\s+['"]([^'"]+)['"])|(?:require\s*\(\s*['"]([^'"]+)['"]\s*\))/g;
                 let match;
                 while ((match = importRegex.exec(content)) !== null) {
                   const importPath = match[1] || match[2] || match[3];
