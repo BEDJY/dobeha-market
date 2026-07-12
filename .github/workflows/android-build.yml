@@ -42,24 +42,23 @@ jobs:
             // 1. Modificar gradle de nivel raíz para asegurar target 34
             if (fs.existsSync('android/build.gradle')) {
               let rootGradle = fs.readFileSync('android/build.gradle', 'utf8');
-              rootGradle = rootGradle.replace(/compileSdkVersions*=s*d+/g, 'compileSdkVersion = 34');
-              rootGradle = rootGradle.replace(/targetSdkVersions*=s*d+/g, 'targetSdkVersion = 34');
+              rootGradle = rootGradle.replace(/compileSdkVersion\s*=\s*\d+/g, 'compileSdkVersion = 34');
+              rootGradle = rootGradle.replace(/targetSdkVersion\s*=\s*\d+/g, 'targetSdkVersion = 34');
               fs.writeFileSync('android/build.gradle', rootGradle);
             }
             
             // 2. Modificar gradle de app
             if (fs.existsSync('android/app/build.gradle')) {
               let appGradle = fs.readFileSync('android/app/build.gradle', 'utf8');
-              appGradle = appGradle.replace(/compileSdkVersions+d+/g, 'compileSdkVersion 34');
-              appGradle = appGradle.replace(/targetSdkVersions+d+/g, 'targetSdkVersion 34');
+              appGradle = appGradle.replace(/compileSdkVersion\s+\d+/g, 'compileSdkVersion 34');
+              appGradle = appGradle.replace(/targetSdkVersion\s+\d+/g, 'targetSdkVersion 34');
               
               // Habilitar Code Shrinking (Proguard/R8) y Resource Shrinking para APK ligera
-              appGradle = appGradle.replace(/minifyEnableds+false/g, 'minifyEnabled true');
+              appGradle = appGradle.replace(/minifyEnabled\s+false/g, 'minifyEnabled true');
               if (!appGradle.includes('shrinkResources')) {
-                appGradle = appGradle.replace(/minifyEnableds+true/g, 'minifyEnabled true
-            shrinkResources true');
+                appGradle = appGradle.replace(/minifyEnabled\s+true/g, 'minifyEnabled true\n            shrinkResources true');
               }
-              appGradle = appGradle.replace(/enableProguardInReleaseBuildss*=s*false/g, 'enableProguardInReleaseBuilds = true');
+              appGradle = appGradle.replace(/enableProguardInReleaseBuilds\s*=\s*false/g, 'enableProguardInReleaseBuilds = true');
               
               fs.writeFileSync('android/app/build.gradle', appGradle);
             }
